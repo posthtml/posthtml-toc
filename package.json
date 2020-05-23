@@ -1,8 +1,8 @@
 {
-  "name": "posthtml-plugin",
-  "description": "PostHTML plugin description",
-  "version": "1.0.0",
-  "author": "PostHTML",
+  "name": "posthtml-toc",
+  "description": "PostHTML Title of Contents",
+  "version": "0.0.0",
+  "author": "Ivan Voischev <voischev.ivan@ya.ru>",
   "ava": {
     "verbose": "true"
   },
@@ -31,7 +31,7 @@
     "posthtml-plugin"
   ],
   "license": "MIT",
-  "main": "lib",
+  "main": "src",
   "repository": "posthtml/posthtml-plugin-boilerplate",
   "scripts": {
     "version": "conventional-changelog -i changelog.md -s -r 0 && git add changelog.md",

@@ -1,64 +1,102 @@
-# PostHTML Plugin Boilerplate <img align="right" width="220" height="200" title="PostHTML logo" src="http://posthtml.github.io/posthtml/logo.svg">
+# PostHTML TOC <img align="right" width="220" height="200" title="PostHTML logo" src="http://posthtml.github.io/posthtml/logo.svg">
 
 [![NPM][npm]][npm-url]
 [![Deps][deps]][deps-url]
 [![Build][build]][build-badge]
 [![Coverage][cover]][cover-badge]
 [![Standard Code Style][style]][style-url]
-[![Chat][chat]][chat-badge]
 
-Clone this repo and explain what your plugin do and why thousands of people need it ;)
+> A table of contents, usually headed simply Contents and abbreviated informally as TOC, is a list, usually found on a page before the start of a written work, of its chapter or section titles or brief descriptions with their commencing page numbers. [Wikipedia](https://en.wikipedia.org/wiki/Table_of_contents)
+
+The plugin works particularly well with markdown documents.
+
+By defaults 
 
 Before:
 ``` html
 <html>
   <body>
-    <p class="wow">OMG</p>
+    <h1 id="title1">Title 1</h1>
+    <p>p1</p>
+    <h2 id="title2">Title 2</h2>
+    <p>p2</p>
+    <h3 id="title3">Title 3</h3>
+    <p>p3</p>
   </body>
 </html>
 ```
 
 After:
 ``` html
-<svg xmlns="http://www.w3.org/2000/svg">
-  <text class="wow" id="wow_id" fill="#4A83B4" fill-rule="evenodd" font-family="Verdana">
-    OMG
-  </text>
-</svg>
+<html>
+  <body>
+    <h1 id="title1">Title 1</h1>
+    <div id="toc">
+      <div id="toctitle">Contents</div>
+      <ul>
+        <li><a href="#title2">Title 2</a></li>
+        <ul>
+            <li><a href="#title3">Title 3</a></li>
+        </ul>
+      </ul>
+    </div>
+    <p>p1</p>
+    <h2 id="title2">Title 2</h2>
+    <p>p2</p>
+    <h3 id="title3">Title 3</h3>
+    <p>p3</p>
+  </body>
+</html>
 ```
 
 ## Install
 
-Describe how big guys can install your plugin.
+Installation in your project
 
-> npm i posthtml posthtml-plugin
+```npm i posthtml posthtml-toc```
 
 ## Usage
-
-Describe how people can use this plugin. Include info about build systems if it's
-necessary.
 
 ``` js
 const fs = require('fs');
 const posthtml = require('posthtml');
-const posthtmlPlugin = require('posthtml-plugin');
+const toc = require('posthtml-toc');
 
 posthtml()
-    .use(posthtmlPlugin({ /* options */ }))
+    .use(toc({ /* options */ }))
     .process(html/*, options */)
     .then(result => fs.writeFileSync('./after.html', result.html));
 ```
 
 ## Options
 
-Describe all features of your plugin with examples of usage.
+Defaults options
 
-### Feature
+* `title = "Content"` — Title TOC block
+* `after = "h1"` — tag after which the TOC will be inserted
+
+
+### `after` options
+
+Set tag, class, or id after which the TOC will be inserted
+
+```js
+  after: 'tag'
+  after: '.class'
+  after: '#id'
+```
+
+### `toggle` options
 Before:
 ``` html
 <html>
   <body>
-    <p>OMG</p>
+    <h1 id="title1">Title 1</h1>
+    <p>p1</p>
+    <h2 id="title2">Title 2</h2>
+    <p>p2</p>
+    <h3 id="title3">Title 3</h3>
+    <p>p3</p>
   </body>
 </html>
 ```
@@ -66,10 +104,12 @@ Add option:
 ``` js
 const fs = require('fs');
 const posthtml = require('posthtml');
-const posthtmlPlugin = require('posthtml-plugin');
+const toc = require('posthtml-toc');
 
 posthtml()
-    .use(posthtmlPlugin({ feature: 'wow' }))
+    .use(toc({
+      toggle: ['show', 'hide', true]
+    }))
     .process(html/*, options */)
     .then(result => fs.writeFileSync('./after.html', result.html));
 ```
@@ -77,32 +117,50 @@ After:
 ``` html
 <html>
   <body>
-    <p class="wow">OMG</p>
+    <h1 id="title1">Title 1</h1>
+    <style>
+      #toctoggle,#toctoggle:checked~ul{display:none}
+      #toctoggle~label:after{content:"hide"}
+      #toctoggle:checked~label:after{content:"show"}
+      #toc label{cursor:pointer}
+    </style>
+    <div id="toc">
+      <input type="checkbox" role="button" id="toctoggle" checked>
+      <h2>Content</h2>
+      <label for="toctoggle"></label>
+      <ul>
+        <li><a href="#title2">Title 2</a></li>
+        <ul>
+          <li><a href="#title3">Title 3</a></li>
+        </li>
+      </ul>
+    </div>
+    <p>p1</p>
+    <h2 id="title2">Title 2</h2>
+    <p>p2</p>
+    <h3 id="title3">Title 3</h3>
+    <p>p3</p>
   </body>
 </html>
 ```
 
 ### Contributing
 
-See [PostHTML Guidelines](https://github.com/posthtml/posthtml/tree/master/docs) and [contribution guide](CONTRIBUTING.md).
+See [PostHTML Guidelines](https://github.com/posthtml/posthtml/tree/master/docs) and [contribution guide](contributing.md).
 
-### License [MIT](LICENSE)
+### License [MIT](license)
 
-[npm]: https://img.shields.io/npm/v/posthtml.svg
-[npm-url]: https://npmjs.com/package/posthtml
+[npm]: https://img.shields.io/npm/v/posthtml-toc.svg
+[npm-url]: https://npmjs.com/package/posthtml-toc
 
-[deps]: https://david-dm.org/posthtml/posthtml.svg
-[deps-url]: https://david-dm.org/posthtml/posthtml
+[deps]: https://david-dm.org/posthtml/posthtml-toc.svg
+[deps-url]: https://david-dm.org/posthtml/posthtml-toc
 
 [style]: https://img.shields.io/badge/code%20style-standard-yellow.svg
 [style-url]: http://standardjs.com/
 
-[build]: https://travis-ci.org/posthtml/posthtml.svg?branch=master
-[build-badge]: https://travis-ci.org/posthtml/posthtml?branch=master
+[build]: https://travis-ci.org/posthtml/posthtml-toc.svg?branch=master
+[build-badge]: https://travis-ci.org/posthtml/posthtml-toc?branch=master
 
-[cover]: https://coveralls.io/repos/posthtml/posthtml/badge.svg?branch=master
-[cover-badge]: https://coveralls.io/r/posthtml/posthtml?branch=master
-
-
-[chat]: https://badges.gitter.im/posthtml/posthtml.svg
-[chat-badge]: https://gitter.im/posthtml/posthtml?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"
+[cover]: https://coveralls.io/repos/posthtml/posthtml-toc/badge.svg?branch=master
+[cover-badge]: https://coveralls.io/r/posthtml/posthtml-toc?branch=master

@@ -11,11 +11,25 @@ test('basic', (t) => {
   return compare(t, 'basic')
 })
 
-function compare (t, name) {
+test('toggle', (t) => {
+  return compare(t, 'toggle', { after: 'p', title: 'Test', toggle: ['show', 'hide'] })
+})
+
+test('class', (t) => {
+  return compare(t, 'class', { after: '.p' })
+})
+
+test('id', (t) => {
+  return compare(t, 'id', { after: '#p' })
+})
+
+function compare (t, name, options = {}) {
   const html = readFileSync(path.join(fixtures, `${name}.html`), 'utf8')
   const expected = readFileSync(path.join(fixtures, `${name}.expected.html`), 'utf8')
 
-  return posthtml([plugin()])
+  return posthtml([plugin(options)])
     .process(html)
-    .then((res) => t.truthy(res.html === expected))
+    .then((res) => {
+      t.truthy(res.html === expected)
+    })
 }

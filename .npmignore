@@ -1,2 +1,7 @@
+.idea
+.editorconfig
+.mversionrc
+.travis.yml
 node_modules/
+test/
 npm-debug.log
