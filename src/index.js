@@ -24,29 +24,8 @@ module.exports = function (options = {}) {
   }
 
   return function toc (tree) {
-    let result = []
     const list = []
-    const toc = [
-      toggle && {
-        tag: 'style',
-        content: [[
-          `#toctoggle,#toctoggle:checked~ul{display:none}`,
-          `#toctoggle~label:after{content:"${toggle[1]}"}`,
-          `#toctoggle:checked~label:after{content:"${toggle[0]}"}`,
-          `#toc label{cursor:pointer}`
-        ].join('')]
-      },
-      {
-        tag: 'div',
-        attrs: { id: 'toc' },
-        content: [
-          toggle && { tag: 'input', attrs: { type: 'checkbox', role: 'button', id: 'toctoggle', checked: toggle[2] } },
-          title && { tag: 'h2', content: [title] },
-          toggle && { tag: 'label', attrs: { for: 'toctoggle' } },
-          result
-        ].filter(Boolean)
-      }
-    ].filter(Boolean)
+    const toc = []
 
     function tocItem (level, href, text) {
       return [level, [], href, text]
@@ -87,6 +66,10 @@ module.exports = function (options = {}) {
 
     if (list.length < 2) {
       return tree
+    }
+
+    if (isAppend === false) {
+      throw new Error(`TOC: not found selector "${after}"`)
     }
 
     for (let i = 1; i < list.length; i++) {
@@ -132,11 +115,32 @@ module.exports = function (options = {}) {
       return { tag: 'ul', content }
     }
 
-    result.push(render(list))
-
-    if (isAppend === false) {
-      throw new Error(`TOC: not found selector "${after}"`)
+    if (toggle) {
+      toc.push(
+        toggle && {
+          tag: 'style',
+          content: [[
+            `#toctoggle,#toctoggle:checked~ul{display:none}`,
+            `#toctoggle~label:after{content:"${toggle[1]}"}`,
+            `#toctoggle:checked~label:after{content:"${toggle[0]}"}`,
+            `#toc label{cursor:pointer}`
+          ].join('')]
+        }
+      )
     }
+
+    toc.push(
+      {
+        tag: 'div',
+        attrs: { id: 'toc' },
+        content: [
+          toggle && { tag: 'input', attrs: { type: 'checkbox', role: 'button', id: 'toctoggle', checked: toggle[2] } },
+          title && { tag: 'h2', content: [title] },
+          toggle && { tag: 'label', attrs: { for: 'toctoggle' } },
+          render(list)
+        ].filter(Boolean)
+      }
+    )
 
     return tree
   }
