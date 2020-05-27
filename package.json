@@ -6,7 +6,7 @@
   "ava": {
     "verbose": "true"
   },
-  "bugs": "https://github.com/posthtml/posthtml-plugin-boilerplate/issues",
+  "bugs": "https://github.com/posthtml/posthtml-toc/issues",
   "dependencies": {
     "posthtml": "^0.11.4"
   },
@@ -24,15 +24,16 @@
   "engines": {
     "node": ">=8"
   },
-  "homepage": "https://github.com/posthtml/posthtml-plugin-boilerplate",
+  "homepage": "https://github.com/posthtml/posthtml-toc",
   "keywords": [
     "html",
     "posthtml",
-    "posthtml-plugin"
+    "posthtml-plugin",
+    "toc"
   ],
   "license": "MIT",
   "main": "src",
-  "repository": "posthtml/posthtml-plugin-boilerplate",
+  "repository": "posthtml/posthtml-toc",
   "scripts": {
     "version": "conventional-changelog -i changelog.md -s -r 0 && git add changelog.md",
     "lint": "standard | snazzy",

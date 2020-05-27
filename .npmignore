@@ -5,3 +5,7 @@
 node_modules/
 test/
 npm-debug.log
+changelog.md
+contributing.md
+license
+readme.md
