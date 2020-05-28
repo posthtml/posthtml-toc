@@ -4,15 +4,15 @@
  * TOC Options
  *
  * @type {Object}
- * @prop {?String} options.after - html tag name
- * @prop {?String} options.title - title toc list
- * @prop {?Array[String, String, Boolean]} options.toggle - toggle button test
+ * @prop {?String} options.after - tag, class, id
+ * @prop {?String} options.title - toc title
+ * @prop {?Array[String, String, Boolean]} options.toggle - toggle button text options
  */
 module.exports = function (options = {}) {
   const {
     after = 'h1',
     title = 'Content',
-    toggle // ['show', 'hide'],
+    toggle // ['show', 'hide', true],
   } = options
 
   if (!after) {
@@ -50,7 +50,7 @@ module.exports = function (options = {}) {
 
       if (!isAppend && content && Array.isArray(content)) {
         for (let i = 0; i < content.length; i++) {
-          let { tag, attrs } = content[i]
+          const { tag, attrs } = content[i]
           if ((after.charAt(0) === '.' && attrs && attrs.class && attrs.class.includes(after.slice(1))) ||
             (after.charAt(0) === '#' && attrs && attrs.id && after.slice(1) === attrs.id) ||
             after === tag) {
@@ -94,13 +94,13 @@ module.exports = function (options = {}) {
     }
 
     function render (list) {
-      let content = []
+      const content = []
 
       list.forEach(function (item) {
-        let children = item[1]
-        let href = item[2]
-        let text = item[3]
-        let li = {
+        const children = item[1]
+        const href = item[2]
+        const text = item[3]
+        const li = {
           tag: 'li',
           content: [
             { tag: 'a', attrs: { href: '#' + href }, content: text }

@@ -1,9 +1,6 @@
 # PostHTML TOC <img align="right" width="220" height="200" title="PostHTML logo" src="http://posthtml.github.io/posthtml/logo.svg">
 
 [![NPM][npm]][npm-url]
-[![Deps][deps]][deps-url]
-[![Build][build]][build-badge]
-[![Coverage][cover]][cover-badge]
 [![Standard Code Style][style]][style-url]
 
 > A table of contents, usually headed simply Contents and abbreviated informally as TOC, is a list, usually found on a page before the start of a written work, of its chapter or section titles or brief descriptions with their commencing page numbers. [Wikipedia](https://en.wikipedia.org/wiki/Table_of_contents)
@@ -34,10 +31,12 @@ After:
     <div id="toc">
       <div id="toctitle">Contents</div>
       <ul>
-        <li><a href="#title2">Title 2</a></li>
-        <ul>
+        <li>
+          <a href="#title2">Title 2</a>
+          <ul>
             <li><a href="#title3">Title 3</a></li>
-        </ul>
+          </ul>
+        </li>
       </ul>
     </div>
     <p>p1</p>
@@ -129,9 +128,11 @@ After:
       <h2>Content</h2>
       <label for="toctoggle"></label>
       <ul>
-        <li><a href="#title2">Title 2</a></li>
-        <ul>
-          <li><a href="#title3">Title 3</a></li>
+        <li>
+          <a href="#title2">Title 2</a>
+          <ul>
+            <li><a href="#title3">Title 3</a></li>
+          </ul>  
         </li>
       </ul>
     </div>
@@ -152,15 +153,6 @@ See [PostHTML Guidelines](https://github.com/posthtml/posthtml/tree/master/docs)
 
 [npm]: https://img.shields.io/npm/v/posthtml-toc.svg
 [npm-url]: https://npmjs.com/package/posthtml-toc
-
-[deps]: https://david-dm.org/posthtml/posthtml-toc.svg
-[deps-url]: https://david-dm.org/posthtml/posthtml-toc
-
-[style]: https://img.shields.io/badge/code%20style-standard-yellow.svg
-[style-url]: http://standardjs.com/
-
-[build]: https://travis-ci.org/posthtml/posthtml-toc.svg?branch=master
-[build-badge]: https://travis-ci.org/posthtml/posthtml-toc?branch=master
 
 [cover]: https://coveralls.io/repos/posthtml/posthtml-toc/badge.svg?branch=master
 [cover-badge]: https://coveralls.io/r/posthtml/posthtml-toc?branch=master
