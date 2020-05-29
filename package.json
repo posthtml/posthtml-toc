@@ -1,7 +1,7 @@
 {
   "name": "posthtml-toc",
   "description": "PostHTML Title of Contents",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Ivan Voischev <voischev.ivan@ya.ru>",
   "ava": {
     "verbose": "true"
