@@ -154,5 +154,5 @@ See [PostHTML Guidelines](https://github.com/posthtml/posthtml/tree/master/docs)
 [npm]: https://img.shields.io/npm/v/posthtml-toc.svg
 [npm-url]: https://npmjs.com/package/posthtml-toc
 
-[cover]: https://coveralls.io/repos/posthtml/posthtml-toc/badge.svg?branch=master
-[cover-badge]: https://coveralls.io/r/posthtml/posthtml-toc?branch=master
+[style]: https://img.shields.io/badge/code%20style-standard-yellow.svg
+[style-url]: http://standardjs.com/
