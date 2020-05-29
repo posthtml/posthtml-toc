@@ -24,11 +24,22 @@ module.exports = function (options = {}) {
   }
 
   return function toc (tree) {
-    const list = []
-    const toc = []
+    const list = [[]]
+    const result = []
+
+    let prev
+    let curr
 
     function tocItem (level, href, text) {
       return [level, [], href, text]
+    }
+
+    function rollUp (list) {
+      const content = list.pop()
+      const len = list[list.length - 1].length
+      const last = list[list.length - 1][len - 1]
+      last[1] = content
+      return last
     }
 
     let isAppend = false
@@ -45,7 +56,36 @@ module.exports = function (options = {}) {
       } = node
 
       if (/^h[2-6]$/.test(tag) && content && attrs && attrs.id) {
-        list.push(tocItem(parseInt(tag.slice(1)), attrs.id, content))
+        curr = tocItem(parseInt(tag.slice(1)), attrs.id, content)
+
+        if (!prev) {
+          list[list.length - 1].push(curr)
+          prev = curr
+          return node
+        }
+
+        if (curr[0] > prev[0]) {
+          if (Array.isArray(list[list.length])) {
+            list[list.length].push(curr)
+          } else {
+            list[list.length] = [curr]
+          }
+          prev = curr
+          return node
+        }
+
+        while (curr[0] < prev[0]) {
+          prev = rollUp(list)
+        }
+
+        if (curr[0] === prev[0]) {
+          list[list.length - 1].push(curr)
+          prev = curr
+          return node
+        }
+
+        list[list.length] = [curr]
+        prev = curr
       }
 
       if (!isAppend && content && Array.isArray(content)) {
@@ -54,7 +94,7 @@ module.exports = function (options = {}) {
           if ((after.charAt(0) === '.' && attrs && attrs.class && attrs.class.includes(after.slice(1))) ||
             (after.charAt(0) === '#' && attrs && attrs.id && after.slice(1) === attrs.id) ||
             after === tag) {
-            content.splice(i + 1, 0, toc)
+            content.splice(i + 1, 0, result)
             isAppend = true
             return node
           }
@@ -64,38 +104,16 @@ module.exports = function (options = {}) {
       return node
     })
 
-    if (list.length < 2) {
-      return tree
-    }
-
     if (isAppend === false) {
       throw new Error(`TOC: not found selector "${after}"`)
     }
 
-    for (let i = 1; i < list.length; i++) {
-      let currentItem = list[i]
-      let previousItem = list[i - 1]
-      let previousList = list
-
-      while (previousItem && currentItem && previousItem[0] < currentItem[0]) {
-        previousList = previousItem[1]
-        previousItem = list.splice(i, 1)[0]
-        previousList.push(previousItem)
-        currentItem = list[i]
-      }
-
-      if (!previousItem || !currentItem) {
-        continue
-      }
-
-      if (previousItem[0] === currentItem[0]) {
-        previousList.push(list.splice(i, 1)[0])
-      }
+    while (list.length > 1) {
+      rollUp(list)
     }
 
     function render (list) {
       const content = []
-
       list.forEach(function (item) {
         const children = item[1]
         const href = item[2]
@@ -116,7 +134,7 @@ module.exports = function (options = {}) {
     }
 
     if (toggle) {
-      toc.push(
+      result.push(
         toggle && {
           tag: 'style',
           content: [[
@@ -129,7 +147,7 @@ module.exports = function (options = {}) {
       )
     }
 
-    toc.push(
+    result.push(
       {
         tag: 'div',
         attrs: { id: 'toc' },
@@ -137,7 +155,7 @@ module.exports = function (options = {}) {
           toggle && { tag: 'input', attrs: { type: 'checkbox', role: 'button', id: 'toctoggle', checked: toggle[2] } },
           title && { tag: 'h2', content: [title] },
           toggle && { tag: 'label', attrs: { for: 'toctoggle' } },
-          render(list)
+          render(list[0])
         ].filter(Boolean)
       }
     )
