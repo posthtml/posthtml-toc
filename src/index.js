@@ -15,12 +15,21 @@ module.exports = function (options = {}) {
     toggle // ['show', 'hide', true],
   } = options
 
-  if (!after) {
-    throw new Error('TOC: options.after required')
+  if (typeof after !== 'string') {
+    throw new PostHtmlTocError(`unexpected 'options.after': ${after}`)
   }
 
-  if (!title) {
-    throw new Error('TOC: options.title required')
+  if (typeof title !== 'string') {
+    throw new PostHtmlTocError(`unexpected 'options.title': ${title}`)
+  }
+
+  if (toggle) {
+    const options01 = ['show', 'hide']
+    const options2 = ['undefined', 'boolean']
+    if (!options01.includes(toggle[0]) || !options01.includes(toggle[1]) ||
+      !options2.includes(typeof toggle[2])) {
+      throw new PostHtmlTocError(`unexpected 'options.toggle': ${toggle}`)
+    }
   }
 
   return function toc (tree) {
@@ -105,7 +114,7 @@ module.exports = function (options = {}) {
     })
 
     if (isAppend === false) {
-      throw new Error(`TOC: not found selector "${after}"`)
+      throw new PostHtmlTocError(`selector not found: ${after}`)
     }
 
     while (list.length > 1) {
@@ -161,5 +170,15 @@ module.exports = function (options = {}) {
     )
 
     return tree
+  }
+}
+
+class PostHtmlTocError extends Error {
+  constructor (...params) {
+    super(...params)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, PostHtmlTocError)
+    }
+    this.name = 'PostHtmlTocError'
   }
 }

@@ -7,6 +7,18 @@ const path = require('path')
 const posthtml = require('posthtml')
 const fixtures = path.join(__dirname, 'fixtures')
 
+test(`invalid 'options.after' throws error`, (t) => {
+  invalidOptions(t, { after: 5 }, `unexpected 'options.after': 5`)
+})
+
+test(`invalid 'options.title' throws error`, (t) => {
+  invalidOptions(t, { title: null }, `unexpected 'options.title': null`)
+})
+
+test(`invalid 'options.toggle' throws error`, (t) => {
+  invalidOptions(t, { toggle: ['hide', true] }, `unexpected 'options.toggle': hide,true`)
+})
+
 test('basic', (t) => {
   return compare(t, 'basic')
 })
@@ -25,6 +37,12 @@ test('id', (t) => {
 
 test('oncetitle', (t) => {
   return compare(t, 'oncetitle')
+})
+
+test('selector not found throws error', async (t) => {
+  const e = await t.throwsAsync(posthtml([plugin()]).process())
+  t.is(e.name, 'PostHtmlTocError')
+  t.is(e.message, `selector not found: h1`)
 })
 
 // const debug = function (html) {
@@ -46,4 +64,10 @@ function compare (t, name, options = {}) {
       // console.log('exp', debug(expected))
       t.truthy(res.html === expected)
     })
+}
+
+function invalidOptions (t, options, message) {
+  const e = t.throws(() => { plugin(options) })
+  t.is(e.name, 'PostHtmlTocError')
+  t.is(e.message, message)
 }
