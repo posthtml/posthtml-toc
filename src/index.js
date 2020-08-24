@@ -7,11 +7,14 @@
  * @prop {?String} options.after - tag, class, id
  * @prop {?String} options.title - toc title
  * @prop {?Array[String, String, Boolean]} options.toggle - toggle button text options
+ * @prop {?boolean} options.ignoreMissingSelector - don't throw an error if the
+ *   selector is not found
  */
 module.exports = function (options = {}) {
   const {
     after = 'h1',
     title = 'Content',
+    ignoreMissingSelector = false,
     toggle // ['show', 'hide', true],
   } = options
 
@@ -30,6 +33,10 @@ module.exports = function (options = {}) {
       !options2.includes(typeof toggle[2])) {
       throw new PostHtmlTocError(`unexpected 'options.toggle': ${toggle}`)
     }
+  }
+
+  if (typeof ignoreMissingSelector !== 'boolean') {
+    throw new PostHtmlTocError(`unexpected 'options.ignoreMissingSelector': ${ignoreMissingSelector}`)
   }
 
   return function toc (tree) {
@@ -114,7 +121,14 @@ module.exports = function (options = {}) {
     })
 
     if (isAppend === false) {
-      throw new PostHtmlTocError(`selector not found: ${after}`)
+      // We have not found the selector. We can't continue, because we're not
+      // going to insert the TOC, so we must choose whether to return an
+      // unchanged `tree` or to throw an error.
+      if (ignoreMissingSelector === true) {
+        return tree
+      } else {
+        throw new PostHtmlTocError(`selector not found: ${after}`)
+      }
     }
 
     while (list.length > 1) {
