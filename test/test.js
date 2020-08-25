@@ -19,6 +19,10 @@ test(`invalid 'options.toggle' throws error`, (t) => {
   invalidOptions(t, { toggle: ['hide', true] }, `unexpected 'options.toggle': hide,true`)
 })
 
+test(`invalid 'options.ignoreMissingSelector' throws error`, (t) => {
+  invalidOptions(t, { ignoreMissingSelector: 42 }, `unexpected 'options.ignoreMissingSelector': 42`)
+})
+
 test('basic', (t) => {
   return compare(t, 'basic')
 })
@@ -43,6 +47,10 @@ test('selector not found throws error', async (t) => {
   const e = await t.throwsAsync(posthtml([plugin()]).process())
   t.is(e.name, 'PostHtmlTocError')
   t.is(e.message, `selector not found: h1`)
+})
+
+test('ignoreMissingSelector does not throw error', (t) => {
+  return compare(t, 'unchanged', { after: '#id-not-found', ignoreMissingSelector: true })
 })
 
 // const debug = function (html) {

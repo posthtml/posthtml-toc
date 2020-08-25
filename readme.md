@@ -73,7 +73,8 @@ Defaults options
 
 * `title = "Content"` — Title TOC block
 * `after = "h1"` — tag after which the TOC will be inserted
-
+* `ignoreMissingSelector = false` — throw an error if the selector is not found
+* `toggle` is undefined
 
 ### `after` options
 
@@ -144,6 +145,47 @@ After:
   </body>
 </html>
 ```
+
+### `ignoreMissingSelector` option
+
+* `{ ignoreMissingSelector: false }` (_default_) — throw an error if the
+  selector (the default `h1` tag or the value passed to `options.after`) is not
+  found.
+
+  For example, with this option, you get an error on the second file because
+  there is no `h1` tag:
+
+  ```html
+  <!-- file-with-toc.html -->
+  <h1>Title 1</h1>
+  <h2 id="title2">Title 2</h2>
+  ```
+
+  ```html
+  <!-- file-without-toc.html -->
+  <div></div>
+  ```
+
+* `{ ignoreMissingSelector: true }` — ignore HTML input that does not have
+  the selector.
+
+  This is useful if you want to uniformly process a number of files but don't
+  want to insert a TOC in all of them.
+
+  For example, with the files mentioned above, instead of an error, the first
+  file is modified and the second file is unchanged:
+
+  ```html
+  <!-- file-with-toc.html -->
+  <h1>Title 1</h1>
+  <div id="toc"><h2>Content</h2><ul><li><a href="#title2">Title 2</a></li></ul></div>
+  <h2 id="title2">Title 2</h2>
+  ```
+
+  ```html
+  <!-- file-without-toc.html -->
+  <div></div>
+  ```
 
 ### Contributing
 
