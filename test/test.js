@@ -47,23 +47,34 @@ test('oncetitle', (t) => {
   return compare(t, 'oncetitle')
 })
 
-test('selector not found throws error', async (t) => {
-  const e = await t.throwsAsync(posthtml([plugin()]).process())
-  t.is(e.name, 'PostHtmlTocError')
-  t.is(e.message, `selector not found: h1`)
-})
+test('selector not found throws error', async (t) =>
+  invalidHtml(t, {}, 'selector not found: h1', '')
+)
 
 test('ignoreMissingSelector does not throw error', (t) => {
   return compare(t, 'unchanged', { after: '#id-not-found', ignoreMissingSelector: true })
 })
 
-test('missing headings throws error', async (t) => {
-  const e = await t.throwsAsync(
-    posthtml([plugin()]).process('<html><body><h1/></body></html>')
+test('missing headings throws error', async (t) =>
+  invalidHtml(t, {},
+    'headings or heading content not found: h2,h3,h4,h5,h6',
+    '<html><body><h1/></body></html>'
   )
-  t.is(e.name, 'PostHtmlTocError')
-  t.is(e.message, 'no headings (h2,h3,h4,h5,h6) found')
-})
+)
+
+test('missing heading content throws error', async (t) =>
+  invalidHtml(t, {},
+    'headings or heading content not found: h2,h3,h4,h5,h6',
+    '<html><body><h1/><h2></h2></body></html>'
+  )
+)
+
+test('whitespace heading content throws error', async (t) =>
+  invalidHtml(t, {},
+    'headings or heading content not found: h2,h3,h4,h5,h6',
+    '<html><body><h1/><h2> </h2></body></html>'
+  )
+)
 
 test('ignoreMissingHeadings does not throw error', (t) => {
   return compare(t, 'ignore-missing-headings', { ignoreMissingHeadings: true })
@@ -92,6 +103,12 @@ function compare (t, name, options = {}) {
 
 function invalidOptions (t, options, message) {
   const e = t.throws(() => { plugin(options) })
+  t.is(e.name, 'PostHtmlTocError')
+  t.is(e.message, message)
+}
+
+async function invalidHtml (t, options, message, html = '') {
+  const e = await t.throwsAsync(posthtml([plugin(options)]).process(html))
   t.is(e.name, 'PostHtmlTocError')
   t.is(e.message, message)
 }
