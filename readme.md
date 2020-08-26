@@ -74,6 +74,7 @@ Defaults options
 * `title = "Content"` — Title TOC block
 * `after = "h1"` — tag after which the TOC will be inserted
 * `ignoreMissingSelector = false` — throw an error if the selector is not found
+* `ignoreMissingHeadings = false` — throw an error if the no headings are found
 * `toggle` is undefined
 
 ### `after` options
@@ -186,6 +187,17 @@ After:
   <!-- file-without-toc.html -->
   <div></div>
   ```
+
+### `ignoreMissingHeadings` option
+
+This option controls what happens when no headings (`h2`, `h3`, `h4`, `h5`,
+`h6`) are found in the HTML input.
+
+* `{ ignoreMissingHeadings: false }` (_default_) — throw an error if no headings
+  are found.
+
+* `{ ignoreMissingHeadings: true }` — do not throw an error if no headings are
+  found. Instead, a TOC with an empty list (i.e. `<ul></ul>`) will be inserted.
 
 ### Contributing
 

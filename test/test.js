@@ -23,6 +23,10 @@ test(`invalid 'options.ignoreMissingSelector' throws error`, (t) => {
   invalidOptions(t, { ignoreMissingSelector: 42 }, `unexpected 'options.ignoreMissingSelector': 42`)
 })
 
+test(`invalid 'options.ignoreMissingHeadings' throws error`, (t) => {
+  invalidOptions(t, { ignoreMissingHeadings: [] }, `unexpected 'options.ignoreMissingHeadings': `)
+})
+
 test('basic', (t) => {
   return compare(t, 'basic')
 })
@@ -51,6 +55,18 @@ test('selector not found throws error', async (t) => {
 
 test('ignoreMissingSelector does not throw error', (t) => {
   return compare(t, 'unchanged', { after: '#id-not-found', ignoreMissingSelector: true })
+})
+
+test('missing headings throws error', async (t) => {
+  const e = await t.throwsAsync(
+    posthtml([plugin()]).process('<html><body><h1/></body></html>')
+  )
+  t.is(e.name, 'PostHtmlTocError')
+  t.is(e.message, 'no headings (h2,h3,h4,h5,h6) found')
+})
+
+test('ignoreMissingHeadings does not throw error', (t) => {
+  return compare(t, 'ignore-missing-headings', { ignoreMissingHeadings: true })
 })
 
 // const debug = function (html) {

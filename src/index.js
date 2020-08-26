@@ -9,12 +9,15 @@
  * @prop {?Array[String, String, Boolean]} options.toggle - toggle button text options
  * @prop {?boolean} options.ignoreMissingSelector - don't throw an error if the
  *   selector is not found
+ * @prop {?boolean} options.ignoreMissingHeadings - don't throw an error if no
+ *   headings (h2,h3,h4,h5,h6) are not found
  */
 module.exports = function (options = {}) {
   const {
     after = 'h1',
     title = 'Content',
     ignoreMissingSelector = false,
+    ignoreMissingHeadings = false,
     toggle // ['show', 'hide', true],
   } = options
 
@@ -37,6 +40,10 @@ module.exports = function (options = {}) {
 
   if (typeof ignoreMissingSelector !== 'boolean') {
     throw new PostHtmlTocError(`unexpected 'options.ignoreMissingSelector': ${ignoreMissingSelector}`)
+  }
+
+  if (typeof ignoreMissingHeadings !== 'boolean') {
+    throw new PostHtmlTocError(`unexpected 'options.ignoreMissingHeadings': ${ignoreMissingHeadings}`)
   }
 
   return function toc (tree) {
@@ -135,6 +142,14 @@ module.exports = function (options = {}) {
       rollUp(list)
     }
 
+    const tocItems = list[0]
+
+    // If there are no headings in the HTML, we throw an error. Otherwise, if
+    // `ignoreMissingHeadings === true`, we output an empty `<ul>`.
+    if (tocItems.length < 1 && ignoreMissingHeadings === false) {
+      throw new PostHtmlTocError('no headings (h2,h3,h4,h5,h6) found')
+    }
+
     function render (list) {
       const content = []
       list.forEach(function (item) {
@@ -178,7 +193,7 @@ module.exports = function (options = {}) {
           toggle && { tag: 'input', attrs: { type: 'checkbox', role: 'button', id: 'toctoggle', checked: toggle[2] } },
           title && { tag: 'h2', content: [title] },
           toggle && { tag: 'label', attrs: { for: 'toctoggle' } },
-          render(list[0])
+          render(tocItems)
         ].filter(Boolean)
       }
     )
