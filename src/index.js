@@ -144,10 +144,11 @@ module.exports = function (options = {}) {
 
     const tocItems = list[0]
 
-    // If there are no headings in the HTML, we throw an error. Otherwise, if
-    // `ignoreMissingHeadings === true`, we output an empty `<ul>`.
+    // If there are no headings in the HTML (or if the headings have only
+    // whitespace), we throw an error. Otherwise, if `ignoreMissingHeadings ===
+    // true`, we output an empty `<ul>`.
     if (tocItems.length < 1 && ignoreMissingHeadings === false) {
-      throw new PostHtmlTocError('no headings (h2,h3,h4,h5,h6) found')
+      throw new PostHtmlTocError('headings or heading content not found: h2,h3,h4,h5,h6')
     }
 
     function render (list) {
