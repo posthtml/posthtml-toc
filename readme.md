@@ -71,21 +71,83 @@ posthtml()
 
 Defaults options
 
+* `insert = { after: 'h1' }` — insert the TOC immediately after the first `<h1>`
 * `title = "Content"` — Title TOC block
-* `after = "h1"` — tag after which the TOC will be inserted
 * `ignoreMissingSelector = false` — throw an error if the selector is not found
 * `ignoreMissingHeadings = false` — throw an error if the no headings are found
 * `toggle` is undefined
 
-### `after` options
+### `insert` option
 
-Set tag, class, or id after which the TOC will be inserted
+This option allows you to specify where the TOC will be inserted in the HTML
+output. The option expects an object with **exactly one key** with a string
+value, as in this schema:
 
-```js
-  after: 'tag'
-  after: '.class'
-  after: '#id'
 ```
+{ insert: { <position>: <selector> } }
+```
+
+`<selector>` is a string used to select an HTML element by matching one of three
+patterns:
+
+* `'<tag>'` — matches the first element with the name `<tag>`.
+
+  _Example_: `'nav'` matches `<nav>`.
+
+* `'#<id>'` — matches the first element with `<id>` as the `id` attribute value.
+
+  _Example_: `'#here'` matches `<div id="here">`.
+
+* `'.<class>'` — matches the first element with `<class>` as one of the
+  space-separated strings in the `class` attribute value.
+
+  _Example_: `'.here'` matches `<div class="are you here or there">`.
+
+`<position>` can be one of the following:
+
+* `after` — The TOC will be inserted immediately after the matching node.
+
+  _Example_: `{ insert: { after: 'h1' } }` (_default_) produces:
+
+  ```diff
+   <h1>...</h1>
+  +<div id="toc">...</div>
+   <p>...</p>
+  ```
+
+* `before` — The TOC will be inserted immediately before the matching node.
+
+  _Example_: `{ insert: { before: '#here' } }` produces:
+
+  ```diff
+   <p>...</p>
+  +<div id="toc">...</div>
+   <div id="here">...</div>
+  ```
+
+* `afterChildren` — The TOC will be inserted into the contents of the matching
+  node after the last child.
+
+  _Example_: `{ insert: { afterChildren: '.here' } }` produces:
+
+  ```diff
+   <nav class="here">
+     <p>...</p>
+  +  <div id="toc">...</div>
+   </nav>
+  ```
+
+* `beforeChildren` — The TOC will be inserted into the contents of the matching
+  node before the first child.
+
+  _Example_: `{ insert: { beforeChildren: '.here' } }` produces:
+
+  ```diff
+   <nav class="here">
+  +  <div id="toc">...</div>
+     <p>...</p>
+   </nav>
+  ```
 
 ### `toggle` options
 Before:
