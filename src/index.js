@@ -4,7 +4,9 @@
  * TOC Options
  *
  * @type {Object}
- * @prop {?String} options.after - tag, class, id
+ * @prop {?String} options.insert - insertion information with position key
+ *   ('after', 'before', 'afterChildren', 'beforeChildren') and selector value
+ *   ('tag', '.class', '#id')
  * @prop {?String} options.title - toc title
  * @prop {?Array[String, String, Boolean]} options.toggle - toggle button text options
  * @prop {?boolean} options.ignoreMissingSelector - don't throw an error if the
@@ -14,15 +16,82 @@
  */
 module.exports = function (options = {}) {
   const {
-    after = 'h1',
+    insert = { after: 'h1' },
     title = 'Content',
     ignoreMissingSelector = false,
     ignoreMissingHeadings = false,
     toggle // ['show', 'hide', true],
   } = options
 
-  if (typeof after !== 'string') {
-    throw new PostHtmlTocError(`unexpected 'options.after': ${after}`)
+  if (typeof insert !== 'object') {
+    throw new PostHtmlTocError(`unexpected 'options.insert': ${insert}`)
+  }
+
+  const insertKeys = Object.keys(insert)
+
+  switch (insertKeys.length) {
+    case 1:
+      break
+    case 0:
+      throw new PostHtmlTocError(`empty 'options.insert'`)
+    default:
+      throw new PostHtmlTocError(`too many keys in 'options.insert': ${insertKeys}`)
+  }
+
+  const position = insertKeys[0]
+  const selector = insert[position]
+
+  // Define a function (dynamically) to insert the TOC.
+  //
+  // The function signature is:
+  //
+  //   function insertToc (nodes, i, toc) { ... }
+  //
+  // `nodes` is the array of nodes in the tree. `i` is a valid index into
+  // `nodes`. `toc` is the array of nodes containing the table of contents.
+  //
+  // The function definition depends on the desired position for inserting the
+  // TOC.
+  //
+  // Note that `insertToc` does not perform any error checking.
+  const insertToc = (() => {
+    switch (position) {
+      case 'after':
+        // Insert the TOC after node `i`. If this is the last node, `nodes` will
+        // be extended with new nodes at the end.
+        return (nodes, i, toc) => { nodes.splice(i + 1, 0, toc) }
+      case 'before':
+        // Insert the TOC before node `i`. If this is the first node, `nodes`
+        // will be extended with new nodes at the beginning.
+        return (nodes, i, toc) => { nodes.splice(Math.max(0, i - 1), 0, toc) }
+      case 'afterChildren':
+        // Insert the TOC as new children of node `i`. The TOC will come after
+        // the last of the node's children.
+        return (nodes, i, toc) => {
+          if (Array.isArray(nodes[i].content)) {
+            nodes[i].content.push(toc)
+          } else {
+            nodes[i].content = new Array(toc)
+          }
+        }
+      case 'beforeChildren':
+        // Insert the TOC as new children of node `i`. The TOC will come before
+        // the first of the node's children.
+        return (nodes, i, toc) => {
+          if (Array.isArray(nodes[i].content)) {
+            nodes[i].content.unshift(toc)
+          } else {
+            nodes[i].content = new Array(toc)
+          }
+        }
+      default:
+        // The `position` is unknown.
+        throw new PostHtmlTocError(`unexpected 'options.insert' key: ${position}`)
+    }
+  })()
+
+  if (typeof selector !== 'string') {
+    throw new PostHtmlTocError(`unexpected 'options.insert' value: ${selector}`)
   }
 
   if (typeof title !== 'string') {
@@ -45,6 +114,30 @@ module.exports = function (options = {}) {
   if (typeof ignoreMissingHeadings !== 'boolean') {
     throw new PostHtmlTocError(`unexpected 'options.ignoreMissingHeadings': ${ignoreMissingHeadings}`)
   }
+
+  // Define a function (dynamically) to check if a given node matches the
+  // selector.
+  //
+  // The function signature is:
+  //
+  //   function matchesSelector ({ tag, attrs }) { ... }
+  //
+  // `tag` is the tag name. `attrs` is the array of attributes.
+  //
+  // The function definition depends on the selector.
+  const matchesSelector = (() => {
+    switch (selector.charAt(0)) {
+      case '.':
+        // Class selector
+        return ({ attrs }) => attrs && attrs.class && attrs.class.includes(selector.slice(1))
+      case '#':
+        // Identifier selector
+        return ({ attrs }) => attrs && attrs.id && attrs.id === selector.slice(1)
+      default:
+        // Tag selector
+        return ({ tag }) => tag === selector
+    }
+  })()
 
   return function toc (tree) {
     const list = [[]]
@@ -113,11 +206,8 @@ module.exports = function (options = {}) {
 
       if (!isAppend && content && Array.isArray(content)) {
         for (let i = 0; i < content.length; i++) {
-          const { tag, attrs } = content[i]
-          if ((after.charAt(0) === '.' && attrs && attrs.class && attrs.class.includes(after.slice(1))) ||
-            (after.charAt(0) === '#' && attrs && attrs.id && after.slice(1) === attrs.id) ||
-            after === tag) {
-            content.splice(i + 1, 0, result)
+          if (matchesSelector(content[i])) {
+            insertToc(content, i, result)
             isAppend = true
             return node
           }
@@ -134,7 +224,7 @@ module.exports = function (options = {}) {
       if (ignoreMissingSelector === true) {
         return tree
       } else {
-        throw new PostHtmlTocError(`selector not found: ${after}`)
+        throw new PostHtmlTocError(`selector not found: ${selector}`)
       }
     }
 
